@@ -1,5 +1,5 @@
 {
-  "name": "@vauban-org/agent-sdk",
+  "name": "@vauban/agent-sdk",
   "version": "0.8.0",
   "description": "Vauban agent primitives: loop, budget, routing, HITL, permissions, tracking, durable execution",
   "type": "module",
