@@ -1,6 +1,6 @@
 {
   "name": "@vauban/agent-sdk",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Vauban agent primitives: loop, budget, routing, HITL, permissions, tracking, durable execution",
   "type": "module",
   "main": "dist/index.js",

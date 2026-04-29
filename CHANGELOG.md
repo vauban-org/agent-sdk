@@ -1,5 +1,17 @@
 # Changelog — @vauban-org/agent-sdk
 
+## 0.8.2 — sprint-524:quick-9
+
+### Added
+- `agents` client: `createAgentsClient({baseUrl, getToken})` with `.execute()`, `.listRegistry()`
+- `pipelines` client: `createPipelinesClient({baseUrl, getToken})` with `.run()`, `.list()`, `.status()`
+- Messaging adapters: `triggerFromTelegram`, `triggerFromSlack` — thin client-side wrappers
+
+### Note
+The cc:execute scope BREAKING change documented in plan v10 is already in effect
+via sprint-524:quick-1 warnOnly grace path (CC_ENFORCE_EXECUTE_SCOPE feature flag).
+This task adds CLIENT-SIDE helpers; no BREAKING SDK API change — additive only.
+
 ## 0.8.1 — patch (logger noop default)
 
 ### Fixed

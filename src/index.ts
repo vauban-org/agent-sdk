@@ -215,6 +215,9 @@ export * from "./skills/index.js";
 // 18. Agent-specific types (SDK v0.7.1 — sprint-526 Bloc 5b)
 export * from "./agents/index.js";
 
+// 20. REST clients (SDK v0.8.2 — sprint-524:quick-9)
+export * from "./clients/index.js";
+
 // 10. Typed port errors (SDK v0.3.0 — Sprint-459)
 export {
   PortError,
