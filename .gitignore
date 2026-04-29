@@ -4,3 +4,4 @@ bench/results.json
 reports/
 .stryker-tmp/
 node_modules
+.npmrc

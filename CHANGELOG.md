@@ -1,5 +1,19 @@
 # Changelog — @vauban-org/agent-sdk
 
+## 0.8.1 — patch (logger noop default)
+
+### Fixed
+
+- `createOODAAgent({ ... })` without `logger` field crashed at first cycle with
+  `TypeError: Cannot read properties of undefined (reading 'error')`. Logger now
+  defaults to a noop implementation (`NOOP_LOGGER`) when not injected by the host.
+- Discovered via post-publish smoke test against npmjs.org @vauban/agent-sdk@0.8.0.
+
+### Migration
+
+None — pure fix, no API change. Existing hosts that already inject `logger`
+unaffected.
+
 ## 0.8.0 — sprint-530:quick-4
 
 ### Added

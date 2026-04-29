@@ -22,6 +22,17 @@ import type {
 import { DEFAULT_RESOURCE_LIMITS } from "./types.js";
 import { EMPTY_SKILL_REGISTRY } from "./skills.js";
 
+/**
+ * Noop logger fallback when host does not inject one.
+ * Prevents TypeError: Cannot read properties of undefined (0.8.1 fix).
+ */
+const NOOP_LOGGER = {
+  info: () => undefined,
+  warn: () => undefined,
+  error: () => undefined,
+  debug: () => undefined,
+};
+
 /** Internal sleep helper — kept private so tests grep cannot find a global setInterval. */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -214,7 +225,9 @@ export class OODAAgentImpl<
     const cycleIndex = this._cyclesCompleted;
     const executionMode = overrideMode ?? this._config.executionMode;
     const isReplay = false;
-    const logger = this._config.logger;
+    // 0.8.1 fix: logger optional with noop default — was crashing in user code
+    // if not injected (TypeError: Cannot read properties of undefined reading 'error').
+    const logger = this._config.logger ?? NOOP_LOGGER;
 
     // Step counter — anti-pattern #9 (maxStepsPerCycle).
     let stepsThisCycle = 0;
