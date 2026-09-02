@@ -1,0 +1,9 @@
+{
+  "strategy": "stub-correct",
+  "accuracy": 0,
+  "costUsd": 0,
+  "latencyMs": 10,
+  "wallMs": 306,
+  "tasks": 30,
+  "measuredAt": "2026-05-05T12:49:55.055Z"
+}

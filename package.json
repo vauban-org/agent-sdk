@@ -1,0 +1,223 @@
+{
+  "name": "@vauban-org/agent-sdk",
+  "version": "4.0.0",
+  "description": "Vauban agent primitives: loop, budget, routing, HITL, permissions, tracking, durable execution",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js",
+      "default": "./dist/auth/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    },
+    "./proof": {
+      "types": "./dist/proof/index.d.ts",
+      "import": "./dist/proof/index.js",
+      "default": "./dist/proof/index.js"
+    },
+    "./proof/cert-verify": {
+      "types": "./dist/proof/cert-verify.d.ts",
+      "import": "./dist/proof/cert-verify.js",
+      "default": "./dist/proof/cert-verify.js"
+    },
+    "./provable-planner": {
+      "types": "./dist/provable-planner/index.d.ts",
+      "import": "./dist/provable-planner/index.js",
+      "default": "./dist/provable-planner/index.js"
+    },
+    "./rigor-score": {
+      "types": "./dist/rigor-score/index.d.ts",
+      "import": "./dist/rigor-score/index.js",
+      "default": "./dist/rigor-score/index.js"
+    },
+    "./outcomes": {
+      "types": "./dist/outcomes/index.d.ts",
+      "import": "./dist/outcomes/index.js",
+      "default": "./dist/outcomes/index.js"
+    },
+    "./testing/chaos": {
+      "types": "./dist/testing/chaos.d.ts",
+      "import": "./dist/testing/chaos.js",
+      "default": "./dist/testing/chaos.js"
+    },
+    "./patterns/circuit-breaker": {
+      "types": "./dist/patterns/circuit-breaker/index.d.ts",
+      "import": "./dist/patterns/circuit-breaker/index.js",
+      "default": "./dist/patterns/circuit-breaker/index.js"
+    },
+    "./patterns/quality-gate": {
+      "types": "./dist/patterns/quality-gate/index.d.ts",
+      "import": "./dist/patterns/quality-gate/index.js",
+      "default": "./dist/patterns/quality-gate/index.js"
+    },
+    "./patterns/escalation": {
+      "types": "./dist/patterns/escalation/index.d.ts",
+      "import": "./dist/patterns/escalation/index.js",
+      "default": "./dist/patterns/escalation/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/mcp/index.d.ts",
+      "import": "./dist/mcp/index.js",
+      "default": "./dist/mcp/index.js"
+    },
+    "./metrics": {
+      "types": "./dist/metrics/create-agent-metrics.d.ts",
+      "import": "./dist/metrics/create-agent-metrics.js",
+      "default": "./dist/metrics/create-agent-metrics.js"
+    },
+    "./hitl/slack": {
+      "types": "./dist/hitl/slack.d.ts",
+      "import": "./dist/hitl/slack.js",
+      "default": "./dist/hitl/slack.js"
+    },
+    "./hitl/telegram": {
+      "types": "./dist/hitl/telegram.d.ts",
+      "import": "./dist/hitl/telegram.js",
+      "default": "./dist/hitl/telegram.js"
+    },
+    "./hitl/api": {
+      "types": "./dist/hitl/api.d.ts",
+      "import": "./dist/hitl/api.js",
+      "default": "./dist/hitl/api.js"
+    },
+    "./hitl/callback-handlers": {
+      "types": "./dist/hitl/callback-handlers.d.ts",
+      "import": "./dist/hitl/callback-handlers.js",
+      "default": "./dist/hitl/callback-handlers.js"
+    },
+    "./economy": {
+      "types": "./dist/economy/index.d.ts",
+      "import": "./dist/economy/index.js",
+      "default": "./dist/economy/index.js"
+    },
+    "./skill-manifest": {
+      "types": "./dist/skill-manifest/index.d.ts",
+      "import": "./dist/skill-manifest/index.js",
+      "default": "./dist/skill-manifest/index.js"
+    },
+    "./skill-loop": {
+      "types": "./dist/skill-loop/index.d.ts",
+      "import": "./dist/skill-loop/index.js",
+      "default": "./dist/skill-loop/index.js"
+    },
+    "./publishers": {
+      "types": "./dist/publishers/index.d.ts",
+      "import": "./dist/publishers/index.js",
+      "default": "./dist/publishers/index.js"
+    },
+    "./marketing": {
+      "types": "./dist/marketing/index.d.ts",
+      "import": "./dist/marketing/index.js",
+      "default": "./dist/marketing/index.js"
+    },
+    "./remote": {
+      "types": "./dist/remote/index.d.ts",
+      "import": "./dist/remote/index.js",
+      "default": "./dist/remote/index.js"
+    },
+    "./acp": {
+      "types": "./dist/acp/index.d.ts",
+      "import": "./dist/acp/index.js",
+      "default": "./dist/acp/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "CONTRACT.md",
+    "README.md",
+    "docs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vauban-org/command-center.git",
+    "directory": "packages/agent-sdk"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "biome check src/ tests/",
+    "size": "size-limit",
+    "size:legacy": "node scripts/measure-size.mjs",
+    "bench": "node --import tsx/esm bench/run.ts",
+    "bench:sdk": "node --import tsx/esm benchmarks/sdk.bench.ts",
+    "bench:baseline": "node --import tsx/esm benchmarks/sdk.bench.ts --write-baseline",
+    "mutation": "stryker run",
+    "stryker": "stryker run --concurrency 2",
+    "api:extract": "api-extractor run --local --verbose",
+    "api:check": "api-extractor run",
+    "docs": "typedoc",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
+    "@opentelemetry/resources": "^2.6.0",
+    "@opentelemetry/sdk-trace-base": "^2.7.1",
+    "@opentelemetry/semantic-conventions": "^1.40.0",
+    "bullmq": "^5.75.2",
+    "ioredis": "^5.10.1",
+    "json-canonicalize": "^2.0.0",
+    "pino": "^9.5.0",
+    "yaml": "^2.6.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@microsoft/api-documenter": "^7.30.5",
+    "@microsoft/api-extractor": "^7.58.7",
+    "@size-limit/preset-small-lib": "^11.0.0",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/typescript-checker": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "@types/nodemailer": "^8.0.0",
+    "@vauban-org/assurance-grade": "workspace:*",
+    "better-sqlite3": "^11.5.0",
+    "fast-check": "^4.7.0",
+    "size-limit": "^11.0.0",
+    "tinybench": "^6.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@vauban-org/proof-core": "^0.1.0 || ^0.2.0 || ^0.3.0",
+    "prom-client": "^15.0.0",
+    "starknet": "^6.24.1"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": false
+    },
+    "@vauban-org/proof-core": {
+      "optional": true
+    },
+    "prom-client": {
+      "optional": true
+    },
+    "starknet": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

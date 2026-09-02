@@ -1,0 +1,1044 @@
+[
+  {
+    "_comment": "=== INSTITUTIONNEL HIGH (3 cycles) — v2 extreme: all positive signals ===",
+    "runId": "inst-hi-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.012
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "read_file",
+        "output": { "status": "ok", "records_processed": 42 },
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "output": { "verdict": "compliant", "checks_passed": 5 },
+        "costUsd": 0.008
+      }
+    ],
+    "budgetUsdMax": 0.1,
+    "budgetUsdSpent": 0.021,
+    "scope_id": "compliance-audit",
+    "metadata": {
+      "pii_redacted": true,
+      "audit_trail_complete": true,
+      "regulatory_scope": "eIDAS",
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2,
+      "hash_primitive": "poseidon",
+      "slsa_level": 3,
+      "model_provider": "anthropic",
+      "model_name": "claude-opus-4-7"
+    },
+    "rootHash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+  },
+  {
+    "runId": "inst-hi-002",
+    "parentRunId": "inst-hi-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "openai", "name": "gpt-4o", "version": "2024-11" },
+        "costUsd": 0.015
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "query_database",
+        "output": { "records": 42, "redacted": true },
+        "costUsd": 0.002
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "write_report",
+        "output": { "status": "submitted" },
+        "costUsd": 0.001
+      },
+      {
+        "index": 3,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "openai", "name": "gpt-4o", "version": "2024-11" },
+        "output": { "verdict": "approved" },
+        "costUsd": 0.009
+      }
+    ],
+    "budgetUsdMax": 0.15,
+    "budgetUsdSpent": 0.027,
+    "scope_id": "data-pipeline",
+    "metadata": {
+      "pii_redacted": true,
+      "audit_trail_complete": true,
+      "regulatory_scope": "gdpr",
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 3,
+      "hash_primitive": "sha256",
+      "slsa_level": 4,
+      "model_provider": "openai",
+      "model_name": "gpt-4o"
+    },
+    "rootHash": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"
+  },
+  {
+    "runId": "inst-hi-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.006
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "fetch_contract",
+        "output": { "contract_id": "CTR-2026-001", "anonymised": true },
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "validate_schema",
+        "output": { "valid": true },
+        "costUsd": 0.001
+      },
+      {
+        "index": 3,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "submit_report",
+        "output": { "report_ref": "RPT-001", "submitted": true },
+        "costUsd": 0.001
+      },
+      {
+        "index": 4,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "output": { "verdict": "compliant" },
+        "costUsd": 0.004
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.013,
+    "scope_id": "regulatory-check",
+    "metadata": {
+      "pii_redacted": true,
+      "audit_trail_complete": true,
+      "regulatory_scope": "ai-act-art-14",
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2,
+      "hash_primitive": "poseidon",
+      "slsa_level": 3,
+      "model_provider": "anthropic",
+      "model_name": "claude-sonnet-4-6"
+    },
+    "rootHash": "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4"
+  },
+  {
+    "_comment": "=== INSTITUTIONNEL LOW (3 cycles) — v2 extreme: maximally bad signals ===",
+    "runId": "inst-lo-001",
+    "steps": [],
+    "budgetUsdMax": 0.1,
+    "budgetUsdSpent": 0.0,
+    "metadata": {
+      "rso_veto": true,
+      "pii_redacted": false,
+      "audit_trail_complete": false,
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "short"
+  },
+  {
+    "runId": "inst-lo-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "send_notification",
+        "output": {
+          "recipient": "jean.dupont@example.com",
+          "iban": "FR7630006000011234567890189",
+          "phone": "+33612345678",
+          "message": "Your transfer is processed"
+        },
+        "costUsd": 0.002
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.002,
+    "metadata": {
+      "pii_redacted": false,
+      "audit_trail_complete": false,
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+  },
+  {
+    "runId": "inst-lo-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "output": { "contact": "marie.martin@corp.fr", "nir": "185127510811145" },
+        "costUsd": 0.005
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.005,
+    "metadata": {
+      "pii_redacted": false,
+      "audit_trail_complete": false,
+      "timeouts_configured": false,
+      "error_paths_explicit": false,
+      "rso_veto": false
+    },
+    "rootHash": "x"
+  },
+  {
+    "_comment": "=== SOTA HIGH (3 cycles) ===",
+    "runId": "sota-hi-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.018
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "zk_prove",
+        "costUsd": 0.005
+      },
+      {
+        "index": 2,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.012
+      }
+    ],
+    "budgetUsdMax": 0.2,
+    "budgetUsdSpent": 0.035,
+    "scope_id": "zk-pipeline",
+    "metadata": {
+      "hash_primitive": "poseidon",
+      "slsa_level": 4,
+      "model_provider": "anthropic",
+      "model_name": "claude-opus-4-7",
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2
+    },
+    "rootHash": "e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6"
+  },
+  {
+    "runId": "sota-hi-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "google", "name": "gemini-2.5-pro", "version": "2025-03" },
+        "costUsd": 0.02
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "compute_hash",
+        "output": { "algorithm": "sha256", "result": "abc" },
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.1,
+    "budgetUsdSpent": 0.021,
+    "scope_id": "integrity-check",
+    "metadata": {
+      "hash_primitive": "sha256",
+      "slsa_level": 3,
+      "model_provider": "google",
+      "model_name": "gemini-2.5-pro",
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 3
+    },
+    "rootHash": "f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1"
+  },
+  {
+    "runId": "sota-hi-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.007
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "verify_proof",
+        "costUsd": 0.003
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "anchor_chain",
+        "costUsd": 0.002
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.012,
+    "scope_id": "proof-anchor",
+    "metadata": {
+      "hash_primitive": "poseidon",
+      "slsa_level": 3,
+      "model_provider": "anthropic",
+      "model_name": "claude-sonnet-4-6",
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": false,
+      "is_idempotent": true,
+      "source_count": 2
+    },
+    "rootHash": "a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3"
+  },
+  {
+    "_comment": "=== SOTA LOW (3 cycles) ===",
+    "runId": "sota-lo-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "openai", "name": "gpt-3.5", "version": "0301" },
+        "costUsd": 0.003
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "hash_data",
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.004,
+    "metadata": {
+      "hash_primitive": "md5",
+      "slsa_level": 1,
+      "model_provider": "openai",
+      "model_name": "gpt-3.5",
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4"
+  },
+  {
+    "runId": "sota-lo-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "openai", "name": "claude-2", "version": "2023" },
+        "costUsd": 0.002
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.002,
+    "metadata": {
+      "hash_primitive": "keccak256",
+      "slsa_level": 0,
+      "model_provider": "openai",
+      "model_name": "claude-2",
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5"
+  },
+  {
+    "runId": "sota-lo-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "meta", "name": "gpt-3", "version": "legacy" },
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.02,
+    "budgetUsdSpent": 0.001,
+    "metadata": {
+      "hash_primitive": "sha1",
+      "slsa_level": 1,
+      "model_provider": "meta",
+      "model_name": "gpt-3",
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6"
+  },
+  {
+    "_comment": "=== ROBUSTE HIGH (3 cycles) ===",
+    "runId": "rob-hi-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.006
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "read_config",
+        "output": { "config": "loaded" },
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "process_data",
+        "output": { "processed": 100 },
+        "costUsd": 0.002
+      },
+      {
+        "index": 3,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.004
+      }
+    ],
+    "budgetUsdMax": 0.08,
+    "budgetUsdSpent": 0.013,
+    "scope_id": "data-processing",
+    "metadata": {
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "slsa_level": 3,
+      "hash_primitive": "sha256",
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2
+    },
+    "rootHash": "e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7"
+  },
+  {
+    "runId": "rob-hi-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.016
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "validate_input",
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "transform_payload",
+        "output": { "status": "ok" },
+        "costUsd": 0.002
+      },
+      {
+        "index": 3,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "persist_result",
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.12,
+    "budgetUsdSpent": 0.02,
+    "scope_id": "event-processor",
+    "metadata": {
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "slsa_level": 4,
+      "hash_primitive": "poseidon",
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 3,
+      "model_provider": "anthropic",
+      "model_name": "claude-opus-4-7"
+    },
+    "rootHash": "f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2b3c4d5e6f7a2"
+  },
+  {
+    "runId": "rob-hi-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "fetch_external",
+        "output": { "data": "safe-content" },
+        "costUsd": 0.001
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.005
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "store_result",
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.06,
+    "budgetUsdSpent": 0.007,
+    "scope_id": "integration-task",
+    "metadata": {
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "slsa_level": 3,
+      "hash_primitive": "sha256",
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2
+    },
+    "rootHash": "a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4"
+  },
+  {
+    "_comment": "=== ROBUSTE LOW (3 cycles) ===",
+    "runId": "rob-lo-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "write_db",
+        "output": { "debug": "secret=plaintext_password_here", "status": "done" },
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.001,
+    "metadata": {
+      "timeouts_configured": false,
+      "error_paths_explicit": false,
+      "slsa_level": 0
+    },
+    "rootHash": "b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5"
+  },
+  {
+    "runId": "rob-lo-002",
+    "steps": [
+      { "index": 0, "phase": "plan", "type": "llm", "costUsd": 0.003 },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "call_api",
+        "output": { "token": "api_key=sk-1234567890abcdef" },
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.004,
+    "metadata": {
+      "timeouts_configured": false,
+      "error_paths_explicit": false,
+      "slsa_level": 1
+    },
+    "rootHash": "c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6"
+  },
+  {
+    "runId": "rob-lo-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "process",
+        "costUsd": 0.002
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.002,
+    "metadata": {
+      "timeouts_configured": false,
+      "error_paths_explicit": false,
+      "slsa_level": 0,
+      "has_fallback": false
+    },
+    "rootHash": "d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7"
+  },
+  {
+    "_comment": "=== ANTIFRAGILE HIGH (3 cycles) ===",
+    "runId": "af-hi-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.02
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "fetch_primary",
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "fetch_secondary",
+        "costUsd": 0.001
+      },
+      {
+        "index": 3,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "merge_sources",
+        "output": { "merged": true },
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.15,
+    "budgetUsdSpent": 0.023,
+    "scope_id": "resilient-pipeline",
+    "metadata": {
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 3,
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "hash_primitive": "poseidon",
+      "slsa_level": 3
+    },
+    "rootHash": "e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8"
+  },
+  {
+    "runId": "af-hi-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "query_source_a",
+        "costUsd": 0.001
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "query_source_b",
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.005
+      },
+      {
+        "index": 3,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "activate_fallback",
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.08,
+    "budgetUsdSpent": 0.008,
+    "scope_id": "multi-source-fetch",
+    "metadata": {
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 4,
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "hash_primitive": "sha256",
+      "slsa_level": 3
+    },
+    "rootHash": "f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3b4c5d6e7f8a3"
+  },
+  {
+    "runId": "af-hi-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.005
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "load_checkpoint",
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "process_incremental",
+        "output": { "items": 50 },
+        "costUsd": 0.002
+      }
+    ],
+    "budgetUsdMax": 0.06,
+    "budgetUsdSpent": 0.008,
+    "scope_id": "incremental-processor",
+    "metadata": {
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2,
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "hash_primitive": "poseidon",
+      "slsa_level": 3
+    },
+    "rootHash": "a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5"
+  },
+  {
+    "_comment": "=== ANTIFRAGILE LOW (3 cycles) ===",
+    "runId": "af-lo-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "call_single_vendor",
+        "costUsd": 0.002
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.002,
+    "metadata": {
+      "has_fallback": false,
+      "is_idempotent": false,
+      "source_count": 1,
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6"
+  },
+  {
+    "runId": "af-lo-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.005
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "write_state",
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.006,
+    "metadata": {
+      "has_fallback": false,
+      "is_idempotent": false,
+      "source_count": 1,
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7"
+  },
+  {
+    "runId": "af-lo-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "single_endpoint_call",
+        "costUsd": 0.001
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "openai", "name": "gpt-3", "version": "legacy" },
+        "costUsd": 0.002
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.003,
+    "metadata": {
+      "has_fallback": false,
+      "is_idempotent": false,
+      "source_count": 1,
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8"
+  },
+  {
+    "_comment": "=== PROFITABLE HIGH (3 cycles) ===",
+    "runId": "prof-hi-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.006
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "retrieve_data",
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-sonnet-4-6", "version": "2025-04" },
+        "costUsd": 0.003
+      }
+    ],
+    "budgetUsdMax": 0.1,
+    "budgetUsdSpent": 0.01,
+    "scope_id": "cost-efficient-task",
+    "metadata": {
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2,
+      "hash_primitive": "sha256",
+      "slsa_level": 3,
+      "model_provider": "anthropic",
+      "model_name": "claude-sonnet-4-6"
+    },
+    "rootHash": "e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9"
+  },
+  {
+    "runId": "prof-hi-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "batch_process",
+        "costUsd": 0.002
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-haiku-3-5", "version": "2025-01" },
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "finalize",
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.004,
+    "scope_id": "budget-optimized",
+    "metadata": {
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2,
+      "hash_primitive": "poseidon",
+      "slsa_level": 3,
+      "model_provider": "anthropic",
+      "model_name": "claude-haiku-3-5"
+    },
+    "rootHash": "f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4b5c6d7e8f9a4"
+  },
+  {
+    "runId": "prof-hi-003",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "openai", "name": "gpt-4o-mini", "version": "2024-07" },
+        "costUsd": 0.001
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "tool_call",
+        "toolName": "run_analysis",
+        "output": { "result": "complete" },
+        "costUsd": 0.001
+      },
+      {
+        "index": 2,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "openai", "name": "gpt-4o-mini", "version": "2024-07" },
+        "costUsd": 0.001
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.003,
+    "scope_id": "minimal-cost-run",
+    "metadata": {
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "has_fallback": true,
+      "is_idempotent": true,
+      "source_count": 2,
+      "hash_primitive": "sha256",
+      "slsa_level": 3,
+      "model_provider": "openai",
+      "model_name": "gpt-4o-mini"
+    },
+    "rootHash": "a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6"
+  },
+  {
+    "_comment": "=== PROFITABLE LOW (3 cycles) ===",
+    "runId": "prof-lo-001",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "plan",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.08
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.09
+      },
+      {
+        "index": 2,
+        "phase": "verify",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.06
+      }
+    ],
+    "budgetUsdMax": 0.1,
+    "budgetUsdSpent": 0.23,
+    "metadata": {
+      "timeouts_configured": true,
+      "error_paths_explicit": true,
+      "model_provider": "anthropic",
+      "model_name": "claude-opus-4-7"
+    },
+    "rootHash": "b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7"
+  },
+  {
+    "runId": "prof-lo-002",
+    "steps": [
+      {
+        "index": 0,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.12
+      },
+      {
+        "index": 1,
+        "phase": "execute",
+        "type": "llm",
+        "model": { "provider": "anthropic", "name": "claude-opus-4-7", "version": "2025-02" },
+        "costUsd": 0.15
+      }
+    ],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.27,
+    "metadata": {
+      "timeouts_configured": false,
+      "error_paths_explicit": false,
+      "model_provider": "anthropic",
+      "model_name": "claude-opus-4-7"
+    },
+    "rootHash": "c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8"
+  },
+  {
+    "runId": "prof-lo-003",
+    "steps": [],
+    "budgetUsdMax": 0.05,
+    "budgetUsdSpent": 0.18,
+    "metadata": {
+      "timeouts_configured": false,
+      "error_paths_explicit": false
+    },
+    "rootHash": "d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9f0a5b6c7d8e9"
+  }
+]

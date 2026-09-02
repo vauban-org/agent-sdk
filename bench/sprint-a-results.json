@@ -1,0 +1,80 @@
+{
+  "capturedAt": "2026-05-05T13:49:25.898Z",
+  "nTasks": 30,
+  "nCandidates": 4,
+  "sigmaG": 15,
+  "sigmaV": 0.12,
+  "accuracyThreshold": 5,
+  "results": [
+    {
+      "strategyName": "single-shot",
+      "accuracy": 0.2,
+      "accuracyCI": {
+        "lo95": 0.06666666666666667,
+        "hi95": 0.3333333333333333
+      },
+      "meanCostCalls": 1,
+      "meanLatencyMs": 0.006084499999997206,
+      "latencyCI": {
+        "lo95": 0.0015140666666648408,
+        "hi95": 0.014946966666665654
+      }
+    },
+    {
+      "strategyName": "best-of-n-4 (composite reward)",
+      "accuracy": 0.7,
+      "accuracyCI": {
+        "lo95": 0.5333333333333333,
+        "hi95": 0.8666666666666667
+      },
+      "meanCostCalls": 4,
+      "meanLatencyMs": 0.043978166666669455,
+      "latencyCI": {
+        "lo95": 0.03148400000000322,
+        "hi95": 0.06510636666666775
+      }
+    },
+    {
+      "strategyName": "bon-mav-4 (mean)",
+      "accuracy": 0.7333333333333333,
+      "accuracyCI": {
+        "lo95": 0.5666666666666667,
+        "hi95": 0.8666666666666667
+      },
+      "meanCostCalls": 4,
+      "meanLatencyMs": 0.05185603333333309,
+      "latencyCI": {
+        "lo95": 0.03725510000000156,
+        "hi95": 0.07646713333333252
+      }
+    },
+    {
+      "strategyName": "bon-mav-4 (median)",
+      "accuracy": 0.5,
+      "accuracyCI": {
+        "lo95": 0.3333333333333333,
+        "hi95": 0.6666666666666666
+      },
+      "meanCostCalls": 4,
+      "meanLatencyMs": 0.05185603333333309,
+      "latencyCI": {
+        "lo95": 0.03725510000000156,
+        "hi95": 0.07646713333333252
+      }
+    },
+    {
+      "strategyName": "bon-mav-4 (majority-vote)",
+      "accuracy": 0.36666666666666664,
+      "accuracyCI": {
+        "lo95": 0.2,
+        "hi95": 0.5333333333333333
+      },
+      "meanCostCalls": 4,
+      "meanLatencyMs": 0.05185603333333309,
+      "latencyCI": {
+        "lo95": 0.03725510000000156,
+        "hi95": 0.07646713333333252
+      }
+    }
+  ]
+}

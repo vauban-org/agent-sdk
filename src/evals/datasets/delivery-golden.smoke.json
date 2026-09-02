@@ -1,0 +1,20 @@
+[
+  {
+    "id": "smoke-reliable-stage",
+    "attempts": { "n": 1, "c": 1 },
+    "endToEnd": true,
+    "tags": { "kind": "smoke", "note": "sealed on the first attempt" }
+  },
+  {
+    "id": "smoke-flaky-stage",
+    "attempts": { "n": 3, "c": 1 },
+    "tags": { "kind": "smoke", "note": "sealed after two denials" }
+  },
+  {
+    "id": "smoke-judge-pair",
+    "attempts": { "n": 1, "c": 1 },
+    "endToEnd": true,
+    "judge": { "verdict": true, "gold": true },
+    "tags": { "kind": "smoke" }
+  }
+]
