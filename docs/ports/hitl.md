@@ -1,5 +1,5 @@
 ---
-classification: C2
+classification: C0
 product: command-center
 status: active
 owner: founder
@@ -90,7 +90,7 @@ const approvalId = await store.request({
 });
 
 // Human resolves via webhook/bot handler
-await store.resolve(approvalId, "approved", "operator@vauban.tech");
+await store.resolve(approvalId, "approved", "operator@example.com");
 
 // Agent polls or awaits resolution
 const finalState = await store.await(approvalId, 10_000);

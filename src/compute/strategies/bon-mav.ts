@@ -13,7 +13,8 @@
  *      Eq. 1 § 2.2). We expose four modes: mean | median | min | majority-vote.
  *   4. Return argmax candidate (ties → first occurrence).
  *
- * See docs/papers/bon-mav-notes.md for the paper distillation.
+ * Source : Lifshitz et al., "Multi-Agent Verification: Scaling Test-Time
+ * Compute with Multiple Verifiers", arXiv:2502.20379 (2025), § 2.2-2.3.
  */
 
 import type { ComputeContext, Strategy, StrategyResult } from "../types.js";

@@ -80,7 +80,7 @@ const ARCHETYPE_POLICIES: Record<QueueArchetype, ArchetypePolicy> = {
 export interface BullMQRunnerConfig {
   /**
    * Redis connection URL. Example:
-   *   redis://brain-prod-redis.brain-prod.svc.cluster.local:6379
+   *   redis://redis.internal.example:6379
    */
   redisUrl: string;
   /** Logical Redis DB index for isolation from Brain. Default 3. */

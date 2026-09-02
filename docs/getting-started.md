@@ -171,17 +171,6 @@ minor/patch.
 
 ## Publishing
 
-Internal GHCR:
-
-```bash
-cd packages/agent-sdk
-pnpm build
-pnpm publish --registry https://npm.pkg.github.com
-```
-
-The `publishConfig` in `package.json` pins the registry; the user running
-`publish` needs `write:packages` scope on a GitHub PAT via `.npmrc`
-`//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}`.
-
-A GHA workflow (`.github/workflows/sdk-publish.yml`) automates this on
-tag `sdk-v*`.
+Releases are cut by the maintainers from CI on a `sdk-v*` tag and published
+to the public npm registry under the MIT license. Contributors never publish
+by hand, and installing the package needs no registry token.

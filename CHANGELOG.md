@@ -1,5 +1,24 @@
 # Changelog ; @vauban-org/agent-sdk
 
+## 4.0.1
+
+### Patch Changes
+
+- Delta-scrub avant réouverture npm publique (ADR-ECO-113 A4, D-A4-2) :
+  - `license: MIT` déclaré et fichier LICENSE embarqué (ADR-ECO-014) ;
+  - `repository`/`homepage`/`bugs` pointent sur le dépôt public
+    `vauban-org/agent-sdk` ;
+  - le tarball n'embarque plus les tests (`src/**/*.test.ts`) ni
+    `docs/papers` (notes internes + PDF tiers) ;
+  - `initVaubanSDK` : le collecteur OTLP par défaut suit
+    `OTEL_EXPORTER_OTLP_ENDPOINT` puis `http://localhost:4318` ; l'ancien
+    défaut nommait un hôte interne à un seul déploiement. Les déploiements
+    qui s'appuyaient sur ce défaut doivent poser la variable ;
+  - exemples et commentaires : plus d'hôtes internes, de liens vers des
+    entrées Brain privées, ni de références personnelles ; docs de
+    publication réécrites (npm public, aucun jeton pour installer) ;
+  - `CONTRACT.md` porte la version réelle du paquet.
+
 ## 4.0.0
 
 ### Major Changes

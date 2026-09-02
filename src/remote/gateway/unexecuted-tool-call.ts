@@ -5,7 +5,7 @@
  * deux tours consécutifs de cette forme, en une seule etape chacun :
  *
  *   {"action": "query_brain_and_memory", "queries": [{"tool": "brain_query", ...}]}
- *   <brain_query q="date de naissance Fabien" />
+ *   <brain_query q="..." />
  *   Rien n'est ressorti de la premiere recherche. Je tente avec d'autres termes.
  *
  * Le modele a ECRIT l'invocation au lieu de l'emettre comme appel structure. La

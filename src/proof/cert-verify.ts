@@ -15,8 +15,8 @@
  *
  * Domain separator: `CERT_MARKER_FELT` = UTF-8 "run_cert" felt252 (right-aligned).
  *
- * @see ../../../src/proof/ed25519-signer.ts (signer, CC server)
- * @see docs/ietf/draft-vauban-skill-attestation-00.md (RFC profile)
+ * The signer half lives server-side ; this module is the verifier half and
+ * depends on nothing but `node:crypto` and `starknet`.
  * @public
  */
 

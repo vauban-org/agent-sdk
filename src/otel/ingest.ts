@@ -5,8 +5,10 @@
  *
  * initVaubanSDK() now instantiates a BasicTracerProvider with an OTLP HTTP
  * exporter and a BatchSpanProcessor. No host-side OTel setup is required.
- * The collectorUrl defaults to the Alloy gateway that fans out to Tempo,
- * Langfuse, and CC ingest.
+ * The collectorUrl follows the OpenTelemetry convention : the
+ * `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable when set, else a
+ * collector on localhost. A deployment hostname is configuration, never a
+ * default shipped in a public package.
  *
  * @see https://opentelemetry.io/docs/languages/js/instrumentation/
  */
@@ -97,7 +99,7 @@ export interface VaubanSDKOptions {
   apiKey: string;
   /**
    * OTLP HTTP collector endpoint.
-   * Default: internal Alloy gateway that fans out to Tempo, Langfuse, CC ingest.
+   * Default: `OTEL_EXPORTER_OTLP_ENDPOINT` when set, else `http://localhost:4318`.
    */
   collectorUrl?: string;
   /** Agent identifier (e.g. "my-product/trading-agent"). */
@@ -136,7 +138,11 @@ let _sdkProvider: BasicTracerProvider | null = null;
  * @public
  */
 export function initVaubanSDK(opts: VaubanSDKOptions): BasicTracerProvider {
-  const collectorUrl = opts.collectorUrl ?? "http://alloy.observability.svc.cluster.local:4318";
+  // Why this default (ADR-ECO-113 A4 delta-scrub, 2026-09-02) : the previous
+  // default named an in-cluster host that only resolved inside one deployment.
+  // The OpenTelemetry environment convention keeps every deployment explicit.
+  const collectorUrl =
+    opts.collectorUrl ?? process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 
   const resource = resourceFromAttributes({
     "service.name": opts.agentId,

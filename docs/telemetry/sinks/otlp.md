@@ -1,5 +1,5 @@
 ---
-classification: C2
+classification: C0
 product: command-center
 status: active
 owner: founder
@@ -18,7 +18,7 @@ Honeycomb, Datadog, any OTLP-compliant collector — no vendor lock-in.
 import { otlpTelemetrySink } from "@vauban-org/agent-sdk";
 
 otlpTelemetrySink({
-  url: "https://langfuse.vauban.tech/api/public/otel",
+  url: "https://langfuse.example.com/api/public/otel",
   headers: { Authorization: "Basic <base64(pub:sec)>" },
 });
 ```
@@ -124,20 +124,19 @@ level. For high-volume agents, wrap with a batcher or use the CC sink
 
 ```ts
 otlpTelemetrySink({
-  url: "https://langfuse.vauban.tech/api/public/otel",
+  url: "https://langfuse.example.com/api/public/otel",
   headers: { Authorization: `Basic ${btoa("pk_xxx:sk_xxx")}` },
 });
 ```
 
-Per [Brain entry 426c92f5](https://command.vauban.tech/brain/426c92f5),
-`langfuse.vauban.tech` is the self-hosted Langfuse already deployed on
-K3s. Free for ecosystem usage.
+A self-hosted Langfuse accepts OTLP on `/api/public/otel`, authenticated
+with Basic auth built from its public and secret keys.
 
 ### Grafana Tempo
 
 ```ts
 otlpTelemetrySink({
-  url: "http://tempo.observability.svc.cluster.local:4318",
+  url: "http://tempo:4318",
 });
 ```
 

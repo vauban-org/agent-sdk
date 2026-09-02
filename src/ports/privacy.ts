@@ -2,15 +2,13 @@
  * PrivacyPort — V0 noop stub for Vauban Privacy Protocol (VPP) integration.
  *
  * Implements S0 port #10 (PrivacyPort): placeholder interface for privacy-preserving
- * operations. Phase 2+ will implement full Stwo+ML-KEM+viewing-key+SMT+cross-domain
- * functionality per draft-vauban-privacy-protocol-00 (target IETF submission 2026-06-29,
- * sprint-490 active 78%).
+ * operations. A later phase implements the full functionality specified by
+ * the Vauban Privacy Protocol (VPP).
  *
  * V0 design: all operations return identity or noop stubs. Enables code to pass type
  * checks while VPP integration is deferred. No Side effects, no cryptographic guarantees.
  *
- * Reference: S0 § cross-spec invariants X-1 (isolation), X-3 (crypto-shredding);
- * VPP Phase roadmap: draft-vauban-privacy-protocol-00 + integration plan TBD.
+ * Reference: cross-spec invariants X-1 (isolation), X-3 (crypto-shredding).
  */
 
 // ─── Privacy revelation mask types ────────────────────────────────────────────

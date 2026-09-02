@@ -1,5 +1,5 @@
 ---
-classification: C2
+classification: C0
 product: command-center
 status: active
 owner: founder

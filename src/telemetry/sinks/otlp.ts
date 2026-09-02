@@ -25,7 +25,7 @@ import type {
 export interface OtlpTelemetrySinkOptions {
   /**
    * OTLP/HTTP endpoint base URL (no trailing slash).
-   * Example : `https://langfuse.vauban.tech/api/public/otel`
+   * Example : `https://langfuse.example.com/api/public/otel`
    * Path `/v1/traces` is appended automatically.
    */
   url: string;

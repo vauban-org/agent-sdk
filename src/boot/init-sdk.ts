@@ -56,7 +56,7 @@ export interface InitSDKOptions {
   registryUrl?: string;
   /**
    * OTel collector endpoint.
-   * Default: `http://alloy.observability.svc.cluster.local:4318`
+   * Default: `OTEL_EXPORTER_OTLP_ENDPOINT` when set, else `http://localhost:4318`.
    */
   collectorUrl?: string;
   /** Enable console span exporter for local debugging. */

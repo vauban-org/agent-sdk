@@ -144,7 +144,7 @@ commandCenterTelemetrySink({
 
 ## Where it sits relative to Langfuse
 
-Both coexist by design ([Brain entry 1b9ab97d](https://command.vauban.tech/brain/1b9ab97d)) :
+Both coexist by design :
 
 | Layer | What | Tool |
 |---|---|---|

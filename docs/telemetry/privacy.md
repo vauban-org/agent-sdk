@@ -1,5 +1,5 @@
 ---
-classification: C2
+classification: C0
 product: command-center
 status: active
 escalation: pending-founder-review
@@ -105,8 +105,8 @@ host agent's `runCycle` is untouched by sink failures.
 - We do NOT phone home to check for SDK updates.
 - We do NOT silently retry telemetry after the user revokes their API
   key — 401s are not retried.
-- We do NOT keep deleted data. The cron at `command-center-prod`
-  namespace deletes runs older than the tenant's retention window (7
+- We do NOT keep deleted data. A scheduled job on the Command Center
+  backend deletes runs older than the tenant's retention window (7
   days free, 30 days Team, 1 year Pro, indefinite Sovereign).
 
 ## Things we DO do (transparently)

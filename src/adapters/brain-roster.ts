@@ -2,8 +2,9 @@
  * BrainRoster ; the set of Brains one agent can reach, and the rules for
  * reading and writing across them.
  *
- * WHY (founder, 2026-08-29): "elle est censee etre connectee a plusieurs
- * brains, le brain vauban et le brain Fabien perso a minima". Until now every
+ * WHY (founder directive, 2026-08-29): an agent is expected to reach several
+ * Brains, the shared product Brain and the operator's personal Brain at
+ * minimum. Until now every
  * host resolved a single scalar brain id and handed it to one HTTP client, so
  * an agent could reach exactly one Brain, for reads and writes alike.
  *

@@ -120,13 +120,9 @@ The SDK follows strict semver. Breaking changes require a major bump.
 
 ## Publishing
 
-The SDK is published to GitHub Container Registry (GHCR):
-
-```bash
-pnpm build && pnpm publish --registry https://npm.pkg.github.com
-```
-
-Automated on tag `sdk-v*` via `.github/workflows/sdk-publish.yml`. Requires `write:packages` scope.
+Releases are cut by the maintainers from CI on a `sdk-v*` tag and published
+to the public npm registry under the MIT license. Contributors never publish
+by hand.
 
 ---
 

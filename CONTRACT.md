@@ -1,6 +1,6 @@
 # @vauban-org/agent-sdk — Public API Contract
 
-**Version:** 0.8.2 | **Status:** public-experimental | **Generated:** 2026-09-01
+**Version:** 4.0.1 | **Status:** public-experimental | **Generated:** 2026-09-02
 
 > Vauban agent primitives: loop, budget, routing, HITL, permissions, tracking, durable execution
 

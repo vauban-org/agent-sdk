@@ -1,5 +1,5 @@
 ---
-classification: C2
+classification: C0
 product: command-center
 status: active
 owner: founder
@@ -85,8 +85,7 @@ commandCenterTelemetrySink({
 
 Free tier upgrade : no SDK code change. Just rotate the API key.
 
-Per [Brain entry 7e18f454](https://command.vauban.tech/brain/7e18f454),
-the free tier policy (1000/mo + 7d) is intentionally narrow enough to
+The free tier policy (1000/mo + 7d) is intentionally narrow enough to
 funnel adoption toward paid tiers without being unusable for solo devs
 exploring the platform.
 

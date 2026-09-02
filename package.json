@@ -1,6 +1,7 @@
 {
   "name": "@vauban-org/agent-sdk",
-  "version": "4.0.0",
+  "version": "4.0.1",
+  "license": "MIT",
   "description": "Vauban agent primitives: loop, budget, routing, HITL, permissions, tracking, durable execution",
   "type": "module",
   "main": "dist/index.js",
@@ -135,14 +136,20 @@
   "files": [
     "dist",
     "src",
+    "!src/**/*.test.ts",
+    "!docs/papers",
     "CONTRACT.md",
     "README.md",
+    "LICENSE",
     "docs"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vauban-org/command-center.git",
-    "directory": "packages/agent-sdk"
+    "url": "https://github.com/vauban-org/agent-sdk.git"
+  },
+  "homepage": "https://github.com/vauban-org/agent-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/vauban-org/agent-sdk/issues"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
