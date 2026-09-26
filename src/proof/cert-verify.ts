@@ -21,32 +21,53 @@
  */
 
 import { type KeyObject, createHash, createPublicKey, verify as cryptoVerify } from "node:crypto";
+import { createRequire } from "node:module";
 import { hash } from "starknet";
+
+// ─── ML-DSA-44 (FIPS 204) types (type-only, optional peer dep) ────────────────
+
+// Type-only import — erased at compile time. The actual module is loaded
+// lazily via createRequire (see `loadMlDsa44` below) so this file works even
+// when `@noble/post-quantum` is not installed: an Ed25519 certificate never
+// needs it, and an ML-DSA-44 certificate without it fails closed with
+// `pq_verifier_unavailable` rather than throwing or silently accepting.
+type MlDsa44Module = typeof import("@noble/post-quantum/ml-dsa.js");
+type MlDsa44Signer = MlDsa44Module["ml_dsa44"];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /**
- * Ed25519 signature payload embedded in `SignedRunProofCertificate`.
+ * Signature payload embedded in `SignedRunProofCertificate`.
  *
- * Two generations coexist, both self-describing (mirrors the CLI store):
- * - v2 (CANONICAL, current): `kid` + `pubkey_spki_b64` + `cert_hash_felt252`
- *   (Poseidon felt252, draft-vauban-skill-attestation-00 §5). Ed25519 signs
- *   the 32-byte felt252 projection of the JCS-canonical unsigned cert.
+ * Three generations coexist, all self-describing (mirrors the CLI store):
+ * - v2 (Ed25519, CANONICAL until D-K 2026-09-26): `kid` + `pubkey_spki_b64` +
+ *   `cert_hash_felt252` (Poseidon felt252, draft-vauban-skill-attestation-00
+ *   §5). Ed25519 signs the 32-byte felt252 projection of the JCS-canonical
+ *   unsigned cert.
+ * - ML-DSA-44 (FIPS 204, D-K 2026-09-26 — see `docs/attestation.md`): same
+ *   hashing pipeline as v2 (JCS → SHA-256 → Poseidon → felt252), but signed
+ *   with ML-DSA-44 over the same 32-byte felt252 message, under the fixed
+ *   FIPS 204 context `ML_DSA44_CONTEXT`. Public key is carried raw (base64)
+ *   in `pubkey_b64` rather than SPKI-wrapped — see `docs/attestation.md` for
+ *   why `pubkey_spki_b64` is not reused.
  * - v1 (LEGACY, read-only compat): `pubkey` (hex) + `digest` (SHA-256 hex),
  *   Ed25519 over the raw canonical UTF-8 bytes. Pre-dates the Poseidon
  *   alignment (VULN-001 audit 2026-08-01) ; kept verifiable forever.
  *
- * Detection: presence of `cert_hash_felt252` ⇒ v2, else `digest` ⇒ v1.
+ * Detection: `alg` selects Ed25519-v2 vs ML-DSA-44 directly; within
+ * Ed25519, presence of `cert_hash_felt252` ⇒ v2, else `digest` ⇒ v1.
  */
 export interface SignaturePayload {
-  alg: "Ed25519";
-  /** v2: stable key id = sha256(SPKI DER).slice(0,16) hex (matches CC server). */
+  alg: "Ed25519" | "ML-DSA-44";
+  /** v2 / ML-DSA-44: stable key id (matches CC server). */
   kid: string;
-  /** Ed25519 signature — base64 (v2) or hex (v1). */
+  /** Signature — base64 (v2 Ed25519, ML-DSA-44) or hex (v1 Ed25519). */
   value: string;
-  /** v2: base64 SPKI DER public key (matches CC server `pubkey_spki_b64`). */
-  pubkey_spki_b64: string;
-  /** v2: Poseidon([0x1, sha_felt, CERT_MARKER_FELT]) felt252 of unsigned cert. */
+  /** v2 Ed25519 only: base64 SPKI DER public key (matches CC server `pubkey_spki_b64`). */
+  pubkey_spki_b64?: string;
+  /** ML-DSA-44 only: raw 1312-byte public key, base64 (see `docs/attestation.md`). */
+  pubkey_b64?: string;
+  /** v2 / ML-DSA-44: Poseidon([0x1, sha_felt, CERT_MARKER_FELT]) felt252 of unsigned cert. */
   cert_hash_felt252: string;
   /** v1 (legacy): hex-encoded public key (32 bytes). */
   pubkey?: string;
@@ -81,7 +102,8 @@ export type CertVerifyFailReason =
   | "pubkey_unresolvable"
   | "kid_mismatch"
   | "signature_invalid"
-  | "malformed_signature";
+  | "malformed_signature"
+  | "pq_verifier_unavailable";
 
 export interface CertVerifyResult {
   valid: boolean;
@@ -91,7 +113,11 @@ export interface CertVerifyResult {
 }
 
 export interface CertVerifyOptions {
+  /** Pin the Ed25519 signing key (bypasses embedded `pubkey_spki_b64`). */
   expectedPublicKey?: KeyObject;
+  /** Pin the ML-DSA-44 signing key, raw 1312-byte public key (bypasses embedded `pubkey_b64`). */
+  expectedMlDsa44PublicKey?: Uint8Array | Buffer;
+  /** Pin the key id — applies to both Ed25519-v2 and ML-DSA-44 certs. */
   expectedKid?: string;
 }
 
@@ -99,6 +125,42 @@ export interface CertVerifyOptions {
 
 /** Domain separator: UTF-8 "run_cert" → felt252 right-aligned, zero-padded. */
 export const CERT_MARKER_FELT: string = `0x${Buffer.from("run_cert", "utf8").toString("hex").padStart(62, "0")}`;
+
+/**
+ * FIPS 204 `ctx` fixed context for ML-DSA-44 run-certificate signatures
+ * (D-K, 2026-09-26). Fixed and versioned in its own name (`-v1`) rather than
+ * left empty, so a future format change cannot be replayed against this one
+ * even though both would otherwise hash the same felt252 message. See
+ * `docs/attestation.md`.
+ */
+export const ML_DSA44_CONTEXT: Uint8Array = new TextEncoder().encode("vauban-run-cert-v1");
+
+/** ML-DSA-44 (FIPS 204) fixed byte lengths. */
+const ML_DSA44_PUBKEY_LEN = 1312;
+const ML_DSA44_SIGNATURE_LEN = 2420;
+
+// ─── Lazy @noble/post-quantum loader (optional peer dep) ──────────────────────
+
+let _mlDsa44: MlDsa44Signer | null | undefined;
+
+/**
+ * Load `@noble/post-quantum`'s `ml_dsa44` signer synchronously once, cache
+ * the result. Returns `null` if the optional dependency is not installed (or
+ * the require fails for any other reason) — callers must treat `null` as a
+ * refusal (`pq_verifier_unavailable`), never as "no ML-DSA-44 certs exist".
+ * Mirrors the `loadPromClient` pattern in `metrics/create-agent-metrics.ts`.
+ */
+function loadMlDsa44(): MlDsa44Signer | null {
+  if (_mlDsa44 !== undefined) return _mlDsa44;
+  try {
+    const req = createRequire(import.meta.url);
+    const mod = req("@noble/post-quantum/ml-dsa.js") as MlDsa44Module;
+    _mlDsa44 = mod.ml_dsa44;
+  } catch {
+    _mlDsa44 = null;
+  }
+  return _mlDsa44;
+}
 
 // ─── JCS canonicalization (RFC 8785 subset) ──────────────────────────────────
 
@@ -188,8 +250,8 @@ export function publicKeyFromSpkiB64(pubkeySpkiB64: string): KeyObject {
  * Verify a signed Run Certificate. Returns a structured result — never throws
  * on verification failure (only on malformed input).
  *
- * The 7 possible failure reasons are typed via `CertVerifyFailReason` so callers
- * can branch precisely. `recomputed_cert_hash_felt252` is always returned for
+ * The failure reasons are typed via `CertVerifyFailReason` so callers can
+ * branch precisely. `recomputed_cert_hash_felt252` is always returned for
  * audit trail / debug inspection.
  */
 export function verifyRunCertificate(
@@ -204,11 +266,14 @@ export function verifyRunCertificate(
       recomputed_cert_hash_felt252: "",
     };
   }
+  if (sig.alg === "ML-DSA-44") {
+    return verifyRunCertificateMlDsa44(cert, sig, opts);
+  }
   if (sig.alg !== "Ed25519") {
     return {
       valid: false,
       reason: "wrong_alg",
-      details: `expected Ed25519, got ${String(sig.alg)}`,
+      details: `expected Ed25519 or ML-DSA-44, got ${String(sig.alg)}`,
       recomputed_cert_hash_felt252: "",
     };
   }
@@ -241,6 +306,13 @@ export function verifyRunCertificate(
   let pubkey: KeyObject;
   if (opts.expectedPublicKey) {
     pubkey = opts.expectedPublicKey;
+  } else if (!sig.pubkey_spki_b64) {
+    return {
+      valid: false,
+      reason: "pubkey_unresolvable",
+      details: "v2 Ed25519 cert missing pubkey_spki_b64",
+      recomputed_cert_hash_felt252: recomputed,
+    };
   } else {
     try {
       pubkey = publicKeyFromSpkiB64(sig.pubkey_spki_b64);
@@ -369,6 +441,113 @@ function verifyRunCertificateV1(
   void _stripped;
   const canonical = canonicalizeJcs(unsigned as Record<string, unknown>);
   const ok = cryptoVerify(null, Buffer.from(canonical, "utf8"), pubkey, sigBytes);
+  if (!ok) {
+    return {
+      valid: false,
+      reason: "signature_invalid",
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
+  return { valid: true, recomputed_cert_hash_felt252: recomputed };
+}
+
+/**
+ * Verify an ML-DSA-44 (FIPS 204) certificate (D-K, 2026-09-26 — see
+ * `docs/attestation.md`). Same hashing pipeline as Ed25519 v2 (JCS →
+ * SHA-256 → Poseidon → felt252); the felt252 is signed under the fixed
+ * `ML_DSA44_CONTEXT`. `@noble/post-quantum` is an optional peer dependency:
+ * when it is not installed, this returns `pq_verifier_unavailable` — it
+ * never falls back to accepting the certificate.
+ */
+function verifyRunCertificateMlDsa44(
+  cert: SignedRunProofCertificateLike,
+  sig: SignaturePayload,
+  opts: CertVerifyOptions,
+): CertVerifyResult {
+  const recomputed = computeCertHashFelt252(cert);
+
+  if (sig.cert_hash_felt252 !== recomputed) {
+    return {
+      valid: false,
+      reason: "hash_mismatch",
+      details: `embedded=${sig.cert_hash_felt252} recomputed=${recomputed}`,
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
+  if (opts.expectedKid && opts.expectedKid !== sig.kid) {
+    return {
+      valid: false,
+      reason: "kid_mismatch",
+      details: `expected kid=${opts.expectedKid}, got ${sig.kid}`,
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
+
+  const mlDsa44 = loadMlDsa44();
+  if (!mlDsa44) {
+    return {
+      valid: false,
+      reason: "pq_verifier_unavailable",
+      details:
+        "@noble/post-quantum is not installed (optional peer dependency) — cannot verify ML-DSA-44 certificates",
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
+
+  let pubkeyBytes: Uint8Array;
+  if (opts.expectedMlDsa44PublicKey) {
+    pubkeyBytes = opts.expectedMlDsa44PublicKey;
+  } else if (!sig.pubkey_b64) {
+    return {
+      valid: false,
+      reason: "pubkey_unresolvable",
+      details: "ML-DSA-44 cert missing pubkey_b64",
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  } else {
+    pubkeyBytes = Buffer.from(sig.pubkey_b64, "base64");
+  }
+  if (pubkeyBytes.length !== ML_DSA44_PUBKEY_LEN) {
+    return {
+      valid: false,
+      reason: "pubkey_unresolvable",
+      details: `ML-DSA-44 public key must be ${ML_DSA44_PUBKEY_LEN} bytes (got ${pubkeyBytes.length})`,
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
+
+  let sigBytes: Buffer;
+  try {
+    sigBytes = Buffer.from(sig.value, "base64");
+  } catch {
+    return {
+      valid: false,
+      reason: "malformed_signature",
+      details: "signature.value is not valid base64",
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
+  if (sigBytes.length !== ML_DSA44_SIGNATURE_LEN) {
+    return {
+      valid: false,
+      reason: "malformed_signature",
+      details: `ML-DSA-44 signature must be ${ML_DSA44_SIGNATURE_LEN} bytes (got ${sigBytes.length})`,
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
+
+  const msgBytes = felt252ToBytes(recomputed);
+  let ok: boolean;
+  try {
+    ok = mlDsa44.verify(sigBytes, msgBytes, pubkeyBytes, { context: ML_DSA44_CONTEXT });
+  } catch (err) {
+    return {
+      valid: false,
+      reason: "signature_invalid",
+      details: err instanceof Error ? err.message : String(err),
+      recomputed_cert_hash_felt252: recomputed,
+    };
+  }
   if (!ok) {
     return {
       valid: false,

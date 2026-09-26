@@ -195,6 +195,7 @@
     "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^22.0.0",
     "@types/nodemailer": "^8.0.0",
+    "@noble/post-quantum": "^0.7.1",
     "@vauban-org/assurance-grade": "workspace:*",
     "better-sqlite3": "^11.5.0",
     "fast-check": "^4.7.0",
@@ -205,12 +206,16 @@
     "vitest": "^3.2.6"
   },
   "peerDependencies": {
+    "@noble/post-quantum": "^0.7.1",
     "@opentelemetry/api": "^1.9.0",
     "@vauban-org/proof-core": "^0.1.0 || ^0.2.0 || ^0.3.0",
     "prom-client": "^15.0.0",
     "starknet": "^6.24.1"
   },
   "peerDependenciesMeta": {
+    "@noble/post-quantum": {
+      "optional": true
+    },
     "@opentelemetry/api": {
       "optional": false
     },
