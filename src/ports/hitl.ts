@@ -85,6 +85,53 @@ export interface HITLRequest {
   tenantId?: string;
 }
 
+/**
+ * Structured, non-repudiable approver identity as encoded into the `by`
+ * parameter of {@link HITLPort.resolve}: the string `"<channel>:<id>"`
+ * (e.g. `"slack:U0123ABC"`, `"telegram:123456789"`).
+ *
+ * `id` MUST be the channel's stable, opaque/numeric user id — never a
+ * display name or `@username` alone, since those are mutable and are not
+ * suitable evidence for a non-repudiation audit trail (AI Act art. 12 & 14).
+ *
+ * This type documents the shape callers should build with
+ * {@link formatApprover} / read back with {@link parseApprover}. It is not
+ * threaded through `HITLPort.resolve()`'s return type (`Promise<void>`)
+ * because doing so would be a breaking signature change gated by
+ * CONTRACT.md's breaking-change policy — `by: string` stays the wire
+ * contract; this is additive documentation only.
+ *
+ * @public
+ */
+export interface HITLApprover {
+  channel: HITLRequest["channel"];
+  id: string;
+  username?: string;
+  /** ISO 8601 timestamp of the decision. */
+  at: string;
+}
+
+/**
+ * Build the structured `by` string HITL channel adapters must pass to
+ * {@link HITLPort.resolve}. See {@link HITLApprover}.
+ * @public
+ */
+export function formatApprover(channel: HITLRequest["channel"], id: string): string {
+  return `${channel}:${id}`;
+}
+
+/**
+ * Parse a structured `by` string produced by {@link formatApprover} back
+ * into its channel + id parts. Returns null if `by` is not in the
+ * `"<channel>:<id>"` shape (e.g. a legacy unstructured value).
+ * @public
+ */
+export function parseApprover(by: string): { channel: string; id: string } | null {
+  const idx = by.indexOf(":");
+  if (idx <= 0 || idx === by.length - 1) return null;
+  return { channel: by.slice(0, idx), id: by.slice(idx + 1) };
+}
+
 // ─── Port interface ──────────────────────────────────────────────────────────
 
 /**
@@ -113,6 +160,16 @@ export interface HITLPort {
 
   /**
    * Record a human decision (approved | rejected) on a pending request.
+   *
+   * `by` MUST be a structured individual approver identity of the form
+   * `"<channel>:<id>"` (see {@link HITLApprover} / {@link formatApprover}),
+   * e.g. `"slack:U0123ABC"` or `"telegram:123456789"` — the channel's
+   * stable id of the human who decided, never the bare channel name and
+   * never a display name/username alone. Channel adapters must fail
+   * closed (never call `resolve`) when the inbound payload does not carry
+   * that id, so the audit trail never records a channel constant in place
+   * of an individual (AI Act art. 12 & 14 non-repudiation).
+   *
    * Throws HITLNotFoundError if absent.
    * Throws InvalidStateTransitionError if current state is not 'pending'.
    */

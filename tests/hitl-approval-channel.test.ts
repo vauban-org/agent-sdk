@@ -496,6 +496,7 @@ describe("createNodeSlackCallbackHandler — Node HTTP adapter", () => {
           }),
         },
       ],
+      user: { id: "U-NODE-001", username: "node-approver" },
     });
     const body = `payload=${encodeURIComponent(interaction)}`;
     const ts = nowTs();

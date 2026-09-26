@@ -228,13 +228,18 @@ describe("createSlackCallbackHandler", () => {
     await store.request(makeHITLRequest({ id: "req-001" }));
   });
 
-  function makeSlackPayload(approvalId: string, action: string): string {
+  function makeSlackPayload(
+    approvalId: string,
+    action: string,
+    user: { id?: string; username?: string } | null = { id: "U0123ABC", username: "alice" },
+  ): string {
     const interaction = {
       actions: [
         {
           value: JSON.stringify({ approval_id: approvalId, action }),
         },
       ],
+      ...(user ? { user } : {}),
     };
     const payload = `payload=${encodeURIComponent(JSON.stringify(interaction))}`;
     return payload;
@@ -317,6 +322,47 @@ describe("createSlackCallbackHandler", () => {
     const state = await store.getState("req-001");
     expect(state).toBe("approved");
   });
+
+  it("resolves with a structured individual approver identity (slack:<user.id>), never the bare channel name", async () => {
+    const resolve = vi.fn().mockResolvedValue(undefined);
+    const fakePort: HITLPort = {
+      request: vi.fn().mockResolvedValue("req-001"),
+      getState: vi.fn().mockResolvedValue("pending" as HITLState),
+      await: vi.fn().mockResolvedValue("approved" as HITLState),
+      resolve,
+      expire: vi.fn().mockResolvedValue(undefined),
+    };
+    const handler = createSlackCallbackHandler({
+      hitlPort: fakePort,
+      signingSecret,
+    });
+
+    const body = makeSlackPayload("req-001", "approve", { id: "U0123ABC", username: "alice" });
+    const headers = makeSlackHeaders(body, signingSecret);
+
+    const result = await handler({ rawBody: body, headers });
+    expect(result.status).toBe(200);
+    expect(resolve).toHaveBeenCalledWith("req-001", "approved", "slack:U0123ABC");
+  });
+
+  it("fails closed and refuses to resolve when the interactive payload has no user.id", async () => {
+    const handler = createSlackCallbackHandler({
+      hitlPort: store,
+      signingSecret,
+    });
+
+    // No `user` field at all in the interaction payload.
+    const body = makeSlackPayload("req-001", "approve", null);
+    const headers = makeSlackHeaders(body, signingSecret);
+
+    const result = await handler({ rawBody: body, headers });
+
+    expect(result.body).toMatchObject({ ok: false, error: "unattributed approver identity" });
+
+    // State must remain pending — never silently attributed to "slack".
+    const state = await store.getState("req-001");
+    expect(state).toBe("pending");
+  });
 });
 
 // ─── Telegram callback handler ────────────────────────────────────────────────
@@ -331,11 +377,16 @@ describe("createTelegramCallbackHandler", () => {
     await store.request(makeHITLRequest({ id: "req-tg-001", channel: "telegram" }));
   });
 
-  function makeTgPayload(approvalId: string, action: string): string {
+  function makeTgPayload(
+    approvalId: string,
+    action: string,
+    from: { id?: number; username?: string } | null = { id: 123456789, username: "bob" },
+  ): string {
     return JSON.stringify({
       callback_query: {
         id: "cq-123",
         data: JSON.stringify({ a: approvalId, v: action }),
+        ...(from ? { from } : {}),
       },
     });
   }
@@ -441,6 +492,50 @@ describe("createTelegramCallbackHandler", () => {
     const result = await handler(body, {});
     expect(result.status).toBe(200);
   });
+
+  it("resolves with a structured individual approver identity (telegram:<from.id>), never the bare channel name", async () => {
+    const resolve = vi.fn().mockResolvedValue(undefined);
+    const fakePort: HITLPort = {
+      request: vi.fn().mockResolvedValue("req-tg-001"),
+      getState: vi.fn().mockResolvedValue("pending" as HITLState),
+      await: vi.fn().mockResolvedValue("approved" as HITLState),
+      resolve,
+      expire: vi.fn().mockResolvedValue(undefined),
+    };
+    const handler = createTelegramCallbackHandler({
+      hitlPort: fakePort,
+      botToken,
+      callbackSecret,
+    });
+
+    const body = makeTgPayload("req-tg-001", "approve", { id: 123456789, username: "bob" });
+    const sig = makeTelegramSignature(callbackSecret, body);
+
+    const result = await handler(body, { "x-telegram-hmac-sha256": sig });
+    expect(result.status).toBe(200);
+    expect(resolve).toHaveBeenCalledWith("req-tg-001", "approved", "telegram:123456789");
+  });
+
+  it("fails closed and refuses to resolve when the callback_query has no from.id", async () => {
+    const handler = createTelegramCallbackHandler({
+      hitlPort: store,
+      botToken,
+      callbackSecret,
+    });
+
+    // No `from` field at all on the callback_query.
+    const body = makeTgPayload("req-tg-001", "approve", null);
+    const sig = makeTelegramSignature(callbackSecret, body);
+
+    const result = await handler(body, { "x-telegram-hmac-sha256": sig });
+
+    expect(result.status).toBe(200);
+    expect(result.body).toMatchObject({ ok: false, error: "unattributed approver identity" });
+
+    // State must remain pending — never silently attributed to "telegram".
+    const state = await store.getState("req-tg-001");
+    expect(state).toBe("pending");
+  });
 });
 
 // ─── E2E: sendHITLApprovalRequestSlack → HITLPort state ──────────────────────
@@ -501,6 +596,7 @@ describe("sendHITLApprovalRequestSlack E2E", () => {
           }),
         },
       ],
+      user: { id: "U0123ABC", username: "alice" },
     };
     const body = `payload=${encodeURIComponent(JSON.stringify(interaction))}`;
     const timestamp = String(Math.floor(Date.now() / 1000));
