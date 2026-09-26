@@ -13,13 +13,28 @@
  */
 
 import { createHash, sign as cryptoSign, generateKeyPairSync } from "node:crypto";
+import { ml_dsa44 } from "@noble/post-quantum/ml-dsa.js";
 import { describe, expect, it } from "vitest";
 import {
   CERT_MARKER_FELT,
+  ML_DSA44_CONTEXT,
   computeCertHashFelt252,
   publicKeyFromSpkiB64,
   verifyRunCertificate,
 } from "../src/proof/cert-verify.js";
+
+/** Sign the felt252 message for an ML-DSA-44 test cert, mirroring the CC server signer. */
+function signMlDsa44(
+  cert: Record<string, unknown>,
+  secretKey: Uint8Array,
+  context: Uint8Array = ML_DSA44_CONTEXT,
+): { recomputed: string; sigB64: string } {
+  const recomputed = computeCertHashFelt252(cert);
+  const hex = recomputed.replace(/^0x/, "").padStart(64, "0");
+  const msgBytes = Buffer.from(hex, "hex");
+  const sigBytes = ml_dsa44.sign(msgBytes, secretKey, { context });
+  return { recomputed, sigB64: Buffer.from(sigBytes).toString("base64") };
+}
 
 // ─── CERT_MARKER_FELT ─────────────────────────────────────────────────────────
 
@@ -319,4 +334,182 @@ describe("verifyRunCertificate v1 legacy", () => {
     expect(r.valid).toBe(false);
     expect(r.reason).toBe("signature_invalid");
   });
+});
+
+// ─── verifyRunCertificate ML-DSA-44 (FIPS 204, D-K 2026-09-26) ─────────────────
+
+describe("verifyRunCertificate ML-DSA-44", () => {
+  it("accepts a valid ML-DSA-44 cert end-to-end", () => {
+    const { publicKey, secretKey } = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-1", agentId: "forge", steps: 4 };
+    const { recomputed, sigB64 } = signMlDsa44(cert, secretKey);
+
+    const r = verifyRunCertificate({
+      ...cert,
+      signature: {
+        alg: "ML-DSA-44",
+        kid: "k-pq-test",
+        value: sigB64,
+        pubkey_b64: Buffer.from(publicKey).toString("base64"),
+        cert_hash_felt252: recomputed,
+        signed_at: new Date().toISOString(),
+      },
+    });
+    expect(r.valid).toBe(true);
+    expect(r.recomputed_cert_hash_felt252).toBe(recomputed);
+  });
+
+  it("returns hash_mismatch when the embedded felt252 does not match recomputed", () => {
+    const { publicKey, secretKey } = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-2" };
+    const { sigB64 } = signMlDsa44(cert, secretKey);
+
+    const r = verifyRunCertificate({
+      ...cert,
+      signature: {
+        alg: "ML-DSA-44",
+        kid: "k-pq",
+        value: sigB64,
+        pubkey_b64: Buffer.from(publicKey).toString("base64"),
+        cert_hash_felt252: "0xdeadbeef",
+        signed_at: "",
+      },
+    });
+    expect(r.valid).toBe(false);
+    expect(r.reason).toBe("hash_mismatch");
+  });
+
+  it("returns signature_invalid when the signature bytes are tampered", () => {
+    const { publicKey, secretKey } = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-3" };
+    const { recomputed, sigB64 } = signMlDsa44(cert, secretKey);
+    const tampered = Buffer.from(sigB64, "base64");
+    tampered[0] ^= 0xff;
+
+    const r = verifyRunCertificate({
+      ...cert,
+      signature: {
+        alg: "ML-DSA-44",
+        kid: "k-pq",
+        value: tampered.toString("base64"),
+        pubkey_b64: Buffer.from(publicKey).toString("base64"),
+        cert_hash_felt252: recomputed,
+        signed_at: "",
+      },
+    });
+    expect(r.valid).toBe(false);
+    expect(r.reason).toBe("signature_invalid");
+  });
+
+  it("returns signature_invalid when the FIPS 204 context differs from ML_DSA44_CONTEXT", () => {
+    const { publicKey, secretKey } = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-4" };
+    const { recomputed, sigB64 } = signMlDsa44(cert, secretKey, new TextEncoder().encode("wrong-context"));
+
+    const r = verifyRunCertificate({
+      ...cert,
+      signature: {
+        alg: "ML-DSA-44",
+        kid: "k-pq",
+        value: sigB64,
+        pubkey_b64: Buffer.from(publicKey).toString("base64"),
+        cert_hash_felt252: recomputed,
+        signed_at: "",
+      },
+    });
+    expect(r.valid).toBe(false);
+    expect(r.reason).toBe("signature_invalid");
+  });
+
+  it("returns pubkey_unresolvable when the public key has the wrong size", () => {
+    const { secretKey } = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-5" };
+    const { recomputed, sigB64 } = signMlDsa44(cert, secretKey);
+
+    const r = verifyRunCertificate({
+      ...cert,
+      signature: {
+        alg: "ML-DSA-44",
+        kid: "k-pq",
+        value: sigB64,
+        pubkey_b64: Buffer.from(new Uint8Array(32)).toString("base64"), // wrong size
+        cert_hash_felt252: recomputed,
+        signed_at: "",
+      },
+    });
+    expect(r.valid).toBe(false);
+    expect(r.reason).toBe("pubkey_unresolvable");
+  });
+
+  it("returns malformed_signature when the signature has the wrong size", () => {
+    const { publicKey, secretKey } = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-6" };
+    const { recomputed } = signMlDsa44(cert, secretKey);
+
+    const r = verifyRunCertificate({
+      ...cert,
+      signature: {
+        alg: "ML-DSA-44",
+        kid: "k-pq",
+        value: Buffer.from("tooshort").toString("base64"),
+        pubkey_b64: Buffer.from(publicKey).toString("base64"),
+        cert_hash_felt252: recomputed,
+        signed_at: "",
+      },
+    });
+    expect(r.valid).toBe(false);
+    expect(r.reason).toBe("malformed_signature");
+  });
+
+  it("returns kid_mismatch when expectedKid does not match on an ML-DSA-44 cert", () => {
+    const { publicKey, secretKey } = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-7" };
+    const { recomputed, sigB64 } = signMlDsa44(cert, secretKey);
+
+    const r = verifyRunCertificate(
+      {
+        ...cert,
+        signature: {
+          alg: "ML-DSA-44",
+          kid: "k-actual",
+          value: sigB64,
+          pubkey_b64: Buffer.from(publicKey).toString("base64"),
+          cert_hash_felt252: recomputed,
+          signed_at: "",
+        },
+      },
+      { expectedKid: "k-expected" },
+    );
+    expect(r.valid).toBe(false);
+    expect(r.reason).toBe("kid_mismatch");
+  });
+
+  it("pins to expectedMlDsa44PublicKey, ignoring embedded pubkey_b64", () => {
+    const { publicKey, secretKey } = ml_dsa44.keygen();
+    const attacker = ml_dsa44.keygen();
+    const cert = { runId: "run-pq-8" };
+    const { recomputed, sigB64 } = signMlDsa44(cert, secretKey);
+
+    const r = verifyRunCertificate(
+      {
+        ...cert,
+        signature: {
+          alg: "ML-DSA-44",
+          kid: "k-pq",
+          value: sigB64,
+          pubkey_b64: Buffer.from(attacker.publicKey).toString("base64"), // attacker's key embedded
+          cert_hash_felt252: recomputed,
+          signed_at: "",
+        },
+      },
+      { expectedMlDsa44PublicKey: publicKey }, // pin to the real signer
+    );
+    expect(r.valid).toBe(true);
+  });
+
+  // `pq_verifier_unavailable` (module-not-installed) is covered in its own
+  // test file, cert-verify-pq-unavailable.test.ts: this file already holds a
+  // real module-level cache of `@noble/post-quantum` (loaded once, memoized)
+  // from the tests above, so mocking `node:module` here would not be
+  // observed by the already-cached loader.
 });
