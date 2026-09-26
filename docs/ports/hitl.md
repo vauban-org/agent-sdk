@@ -89,8 +89,11 @@ const approvalId = await store.request({
   channel: "telegram",
 });
 
-// Human resolves via webhook/bot handler
-await store.resolve(approvalId, "approved", "operator@example.com");
+// Human resolves via webhook/bot handler. `by` MUST be a structured,
+// individual identity ("<channel>:<id>") — see "Approver identity (`by`)"
+// below. This is illustrative; the Slack/Telegram callback handlers below
+// build this string themselves from the inbound payload.
+await store.resolve(approvalId, "approved", "telegram:123456789");
 
 // Agent polls or awaits resolution
 const finalState = await store.await(approvalId, 10_000);
@@ -111,3 +114,62 @@ import { createNodeSlackCallbackHandler } from "@vauban-org/agent-sdk";
 ```
 
 See `@vauban-org/agent-sdk/hitl/slack` and `@vauban-org/agent-sdk/hitl/telegram` subpaths for the full helper API.
+
+## Approver identity (`by`)
+
+`HITLPort.resolve(id, decision, by)`'s `by` parameter is a **structured,
+individual approver identity**, not a channel label. It has the shape:
+
+```
+"<channel>:<id>"
+```
+
+e.g. `"slack:U0123ABC"` or `"telegram:123456789"`. `id` is the channel's
+stable, opaque/numeric user id — **never** a display name or `@username`
+alone, since those can be renamed and are not suitable evidence for a
+non-repudiation audit trail (this product's HITL approval flow is sold
+against the AI Act's art. 12 record-keeping and art. 14 human-oversight
+requirements).
+
+Prior to this note, the Slack and Telegram callback handlers
+(`src/hitl/slack.ts`, `src/hitl/telegram.ts`) passed the bare channel
+constant (`"slack"` / `"telegram"`) as `by`. That meant the audit trail
+could say *which channel* an approval came through but never *which human*
+clicked the button — a correctness defect for a product whose value
+proposition is non-repudiation. Both adapters now:
+
+1. Extract the individual identifier from the inbound payload — Slack's
+   `interaction.user.id`, Telegram's `callback_query.from.id` — and encode
+   it as `"slack:<id>"` / `"telegram:<id>"` via the `formatApprover()`
+   helper exported from `src/ports/hitl.ts`.
+2. **Fail closed** when that id is absent from the payload: `resolve()` is
+   never called, the attempt is logged, and the channel is told the
+   approval could not be attributed to an individual (instead of silently
+   recording it under the channel name). See the `*.test.ts` files next to
+   each adapter for the exact behaviour.
+
+`HITLPort.resolve()`'s signature (`by: string`) is unchanged — this is a
+documented convention for the string's content, not a type-level guarantee.
+Adapters other than Slack/Telegram (Discord, or any future channel) MUST
+follow the same `"<channel>:<id>"` + fail-closed convention.
+
+### Known limitation
+
+The identity carried in `by` is the identity of the messaging account that
+clicked the button (a Slack workspace member id, a Telegram user id), as
+attested by that platform's webhook payload and — for Slack — its
+HMAC-signed request. It is **not** a cryptographic signature made by the
+approver themselves (e.g. no per-user key, no WebAuthn/passkey assertion).
+A compromised Slack/Telegram account, or a platform-side spoof of the
+payload, would still be attributed to that account. Strengthening this
+further (per-approver cryptographic signing) is a separate, larger piece of
+work and is out of scope here.
+
+Separately, Telegram's webhook has no equivalent of Slack's HMAC request
+signature unless the deployer explicitly configures
+`TelegramCallbackHandlerOpts.callbackSecret` (`x-telegram-hmac-sha256`) —
+and that header is not something Telegram's own Bot API sends by default;
+it depends on the reverse proxy / bot framework in front of the webhook
+adding it. A Telegram HITL webhook deployed without that secret configured
+accepts unauthenticated callback payloads. This is a distinct defect from
+the approver-identity one fixed here and is tracked separately.

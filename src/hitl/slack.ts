@@ -9,7 +9,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { fetchOrThrow } from "../http/fetch-json.js";
-import type { HITLPort, HITLRequest } from "../ports/hitl.js";
+import { type HITLPort, type HITLRequest, formatApprover } from "../ports/hitl.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -211,7 +211,10 @@ export function createSlackCallbackHandler(
       };
     }
 
-    let interaction: { actions?: Array<{ value?: string }> };
+    let interaction: {
+      actions?: Array<{ value?: string }>;
+      user?: { id?: unknown; username?: unknown };
+    };
     try {
       interaction = JSON.parse(wrapped) as typeof interaction;
     } catch {
@@ -237,8 +240,27 @@ export function createSlackCallbackHandler(
     const { approvalId, action } = buttonVal;
     const decision = action === "approve" ? "approved" : "rejected";
 
+    // Fail closed: the audit trail must record WHO approved, not just the
+    // channel. Slack's `user.id` (e.g. "U0123ABC") is stable; `username`
+    // is a mutable display name and is never used as the sole identifier.
+    const approverId = extractSlackUserId(interaction.user);
+    if (!approverId) {
+      console.error(
+        `[hitl-slack] refusing to resolve ${approvalId}: interactive payload is missing user.id, cannot attribute an individual approver`,
+      );
+      return {
+        status: 200,
+        body: {
+          ok: false,
+          error: "unattributed approver identity",
+          text: ":warning: This approval could not be attributed to an individual Slack account and was not recorded. Contact an admin.",
+        },
+      };
+    }
+    const by = formatApprover("slack", approverId);
+
     try {
-      await hitlPort.resolve(approvalId, decision, "slack");
+      await hitlPort.resolve(approvalId, decision, by);
     } catch (err) {
       // Idempotence: already resolved → silently accept
       if (
@@ -291,6 +313,18 @@ export function verifySlackSignature(
 }
 
 // ─── Private helpers ─────────────────────────────────────────────────────────
+
+/**
+ * Extract the stable Slack user id (`user.id`, e.g. "U0123ABC") from an
+ * interactive payload's `user` object. Returns null if absent or not a
+ * non-empty string — callers must then refuse to resolve (fail closed),
+ * never falling back to `user.username` (mutable display name) or the
+ * channel constant.
+ */
+function extractSlackUserId(user: { id?: unknown; username?: unknown } | undefined): string | null {
+  if (!user) return null;
+  return typeof user.id === "string" && user.id.length > 0 ? user.id : null;
+}
 
 function parseButtonValue(
   value: string,

@@ -9,7 +9,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { fetchJson } from "../http/fetch-json.js";
-import type { HITLPort, HITLRequest } from "../ports/hitl.js";
+import { type HITLPort, type HITLRequest, formatApprover } from "../ports/hitl.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -216,9 +216,42 @@ export function createTelegramCallbackHandler(
 
     const decision = actionRaw === "approve" ? "approved" : "rejected";
 
+    // Fail closed: the audit trail must record WHO approved, not just the
+    // channel. Telegram's `callback_query.from.id` is a stable numeric user
+    // id; `from.username` is optional and mutable and is never used as the
+    // sole identifier.
+    const approverId = extractTelegramUserId(callbackQuery.from);
+    if (!approverId) {
+      process.stderr.write(
+        `[hitl-telegram] refusing to resolve ${approvalId}: callback_query is missing from.id, cannot attribute an individual approver\n`,
+      );
+
+      const callbackQueryId = String(callbackQuery.id ?? "");
+      if (callbackQueryId) {
+        const answerUrl = `${TELEGRAM_API_BASE}/bot${botToken}/answerCallbackQuery`;
+        await fetch(answerUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            callback_query_id: callbackQueryId,
+            text: "⚠️ Could not attribute this approval to an individual Telegram account. Contact an admin.",
+            show_alert: true,
+          }),
+        }).catch(() => {
+          // Best-effort — don't fail the handler if Telegram API is slow
+        });
+      }
+
+      return {
+        status: 200,
+        body: { ok: false, error: "unattributed approver identity" },
+      };
+    }
+    const by = formatApprover("telegram", approverId);
+
     let resolved = true;
     try {
-      await hitlPort.resolve(approvalId, decision, "telegram");
+      await hitlPort.resolve(approvalId, decision, by);
     } catch (err) {
       if (
         err instanceof Error &&
@@ -303,6 +336,22 @@ export async function sendTelegramMessage(
 }
 
 // ─── Private helpers ─────────────────────────────────────────────────────────
+
+/**
+ * Extract the stable Telegram user id (`callback_query.from.id`) as a
+ * string. Telegram's Bot API always sends this as a JSON number for a real
+ * callback query; a numeric string is also accepted defensively. Returns
+ * null if absent or malformed — callers must then refuse to resolve (fail
+ * closed), never falling back to `from.username` (optional, mutable) or
+ * the channel constant.
+ */
+function extractTelegramUserId(from: unknown): string | null {
+  if (!from || typeof from !== "object") return null;
+  const id = (from as Record<string, unknown>).id;
+  if (typeof id === "number" && Number.isFinite(id)) return String(id);
+  if (typeof id === "string" && id.length > 0 && /^-?\d+$/.test(id)) return id;
+  return null;
+}
 
 function summarizePayload(payload: Record<string, unknown>): string {
   const raw = JSON.stringify(payload, null, 2);
